@@ -6,6 +6,14 @@ command: [
 env:
   - name: "SERVING_ENDPOINT"
     valueFrom: "serving-endpoint"
+  - name: "DASHBOARD_1_URL"
+    value: "https://e2-demo-field-eng.cloud.databricks.com/embed/dashboardsv3/01f0381be8cd15f9808fddb109ad7085"
+  - name: "DASHBOARD_2_URL" 
+    value: "https://e2-demo-field-eng.cloud.databricks.com/embed/dashboardsv3/01f01d37eef817568159de3c7b10c9e0"
+  - name: "DASHBOARD_3_URL"
+    value: ""
+  - name: "DASHBOARD_4_URL"
+    value: ""
 
 resources:
   serving-endpoint:
