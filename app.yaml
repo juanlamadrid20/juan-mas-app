@@ -6,3 +6,10 @@ command: [
 env:
   - name: "SERVING_ENDPOINT"
     valueFrom: "serving-endpoint"
+
+resources:
+  serving-endpoint:
+    type: "serving-endpoint"
+    name: "databricks-claude-3-7-sonnet"
+    permissions:
+      - level: "CAN_QUERY"

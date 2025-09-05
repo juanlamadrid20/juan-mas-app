@@ -4,15 +4,32 @@ import dash_bootstrap_components as dbc
 from dash import html
 from DatabricksChatbot import DatabricksChatbot
 from model_serving_utils import is_endpoint_supported
+from dotenv import load_dotenv
 
-# Ensure environment variable is set correctly
+# Load environment variables from .env file for local development
+load_dotenv()
+
+# Determine if we're running locally or on Databricks
+is_databricks_env = os.getenv('DATABRICKS_RUNTIME_VERSION') is not None
+
+# Get serving endpoint configuration
 serving_endpoint = os.getenv('SERVING_ENDPOINT')
-assert serving_endpoint, \
-    ("Unable to determine serving endpoint to use for chatbot app. If developing locally, "
-     "set the SERVING_ENDPOINT environment variable to the name of your serving endpoint. If "
-     "deploying to a Databricks app, include a serving endpoint resource named "
-     "'serving_endpoint' with CAN_QUERY permissions, as described in "
-     "https://docs.databricks.com/aws/en/generative-ai/agent-framework/chat-app#deploy-the-databricks-app")
+
+if not serving_endpoint:
+    if is_databricks_env:
+        error_msg = (
+            "Unable to determine serving endpoint for Databricks deployment. "
+            "Ensure your app.yaml includes a serving endpoint resource named 'serving_endpoint' "
+            "with CAN_QUERY permissions. See: "
+            "https://docs.databricks.com/aws/en/generative-ai/agent-framework/chat-app#deploy-the-databricks-app"
+        )
+    else:
+        error_msg = (
+            "Unable to determine serving endpoint for local development. "
+            "Set the SERVING_ENDPOINT environment variable to your endpoint name (e.g., 'databricks-claude-3-7-sonnet'). "
+            "You can also create a .env file with: SERVING_ENDPOINT=your-endpoint-name"
+        )
+    raise AssertionError(error_msg)
 
 # Check if the endpoint is supported
 endpoint_supported = is_endpoint_supported(serving_endpoint)
