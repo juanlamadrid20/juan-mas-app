@@ -18,6 +18,6 @@ env:
 resources:
   serving-endpoint:
     type: "serving-endpoint"
-    name: "databricks-claude-3-7-sonnet"
+    name: "mas-84eae27f-endpoint"
     permissions:
       - level: "CAN_QUERY"

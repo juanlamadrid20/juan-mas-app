@@ -1,7 +1,4 @@
-
-
-
-# Dashboards
+# Add Dashboards
 
 I have a Databricks App created from the Dash ChatBot template. Can you modify my App such that embeds multiple dashboards with the following requirements:
 
@@ -39,3 +36,53 @@ Pro Tip:
 Provide complete app.py, app.yaml, and requirements.txt files.
 
 
+
+
+# Add Multi Agent Supervisor
+
+
+Augment my existing Databricks App with an AI chatbot interface which calls a Databricks Multi-Agent Supervisor endpoint. The supervisor orchestrates multiple specialized agents for comprehensive responses.
+
+Core Chatbot Features:
+- Clean chat interface with message history and user input
+- Send button and Enter key support for message submission
+- Clear chat functionality with confirmation
+- Typing indicator while processing responses
+- Auto-scrolling chat history
+- Professional styling with an cohesive theme
+
+Response Formatting:
+- Parse and display structured content (tables, lists, paragraphs)
+- Handle markdown-style formatting (**bold**, *italic*, bullet points)
+- Convert table data into formatted Bootstrap tables
+- Support for multi-paragraph responses with proper spacing
+- Error handling for malformed responses
+
+Databricks Integration:
+- Call Databricks model serving endpoints using MLflow deployment client
+- Support both Agent Framework and chat completion endpoint formats
+- Handle authentication automatically in Databricks environment
+- Configurable endpoint name via environment variables
+- Robust error handling for endpoint connectivity issues
+
+Technical Implementation:
+- Use Dash framework with Bootstrap styling
+- Store chat history in browser session
+- Implement proper callback structure for real-time chat
+- Include loading states and error messaging
+- Responsive design for desktop and mobile
+
+Agent Framework Compatibility:
+- Designed to work with Databricks multiagent supervisors
+- Supports complex multi-agent orchestration responses
+- Handles structured outputs from specialized agents
+- Maintains conversation context across agent interactions
+
+Configuration:
+```yaml
+env:
+  - name: "SERVING_ENDPOINT"
+    value: "mas-84eae27f-endpoint"
+```
+
+Include complete app.py with chat interface, model serving integration, response formatting, and proper error handling.

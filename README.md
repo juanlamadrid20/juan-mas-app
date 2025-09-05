@@ -1,6 +1,9 @@
 # Databricks Chatbot App
 
-A Databricks chatbot application that works seamlessly in both local development and Databricks deployment environments.
+Based on https://medium.com/@AI-on-Databricks/vibe-coding-your-first-databricks-app-8d662f41b959
+
+
+A Databricks chatbot application that works seamlessly in both local development and Databricks deployment environments. Supports both traditional chat endpoints and multi-agent supervisor endpoints created with agent-bricks.
 
 ## Features
 
@@ -9,13 +12,15 @@ A Databricks chatbot application that works seamlessly in both local development
 - 🎨 Modern, responsive UI with Databricks branding
 - ⚡ Real-time chat with typing indicators
 - 🔒 Secure endpoint access with proper permissions
+- 🧠 Multi-agent supervisor endpoint support (agent-bricks)
+- 🛠️ CLI utilities for endpoint testing and management
 
 ## Prerequisites
 
 - Python 3.13+
 - [uv](https://docs.astral.sh/uv/) package manager
 - Databricks workspace access
-- A Databricks serving endpoint (e.g., Claude 3.5 Sonnet)
+- A Databricks serving endpoint (e.g., Claude 3.5 Sonnet, multi-agent supervisor)
 
 ## Quick Start
 
@@ -33,6 +38,8 @@ Set your serving endpoint name as an environment variable:
 ```bash
 # Option 1: Set environment variable directly
 export SERVING_ENDPOINT="databricks-claude-3-7-sonnet"
+# Or for multi-agent supervisor endpoints:
+export SERVING_ENDPOINT="my-agent-supervisor"
 
 # Option 2: Create a .env file
 echo "SERVING_ENDPOINT=databricks-claude-3-7-sonnet" > .env
@@ -51,11 +58,30 @@ The app will be available at `http://localhost:8050`
 Deploy to Databricks as an app:
 
 ```bash
-# Package the app
-uv run databricks app bundle
+# Deploy to your workspace (automatically bundles and deploys)
+uv run databricks apps deploy
 
-# Deploy to your workspace
-uv run databricks app deploy
+# Or deploy a specific app by name
+uv run databricks apps deploy your-app-name
+
+# Deploy with snapshot mode (recommended for updates)
+uv run databricks apps deploy your-app-name --mode SNAPSHOT
+```
+
+### App Management Commands
+
+```bash
+# List all deployed apps
+uv run databricks apps list
+
+# Get app details and status
+uv run databricks apps get your-app-name
+
+# Get deployment details
+uv run databricks apps get-deployment your-app-name deployment-id
+
+# Check app status
+uv run databricks apps get your-app-name
 ```
 
 ## Configuration
@@ -65,8 +91,18 @@ uv run databricks app deploy
 The app automatically detects if it's running locally and provides helpful error messages. You need to set the `SERVING_ENDPOINT` environment variable to your endpoint name (not the full URL).
 
 **Important**: Use only the endpoint name, not the full URL. For example:
-- ✅ Correct: `databricks-claude-3-7-sonnet`
+- ✅ Correct: `databricks-claude-3-7-sonnet` or `my-agent-supervisor`
 - ❌ Incorrect: `https://e2-demo-field-eng.cloud.databricks.com/serving-endpoints/databricks-claude-3-7-sonnet/invocations`
+
+### Supported Endpoint Types
+
+The application supports various Databricks serving endpoint types:
+- `llm/v1/chat` - Standard LLM chat endpoints
+- `agent/v1/chat` - Agent chat endpoints
+- `agent/v2/chat` - Agent chat endpoints (v2)
+- `agent/v1/supervisor` - Multi-agent supervisor endpoints
+- `agent/v2/supervisor` - Multi-agent supervisor endpoints (v2)
+- `agent/v1/responses` - Agent response endpoints
 
 ### Databricks Deployment
 
@@ -81,10 +117,13 @@ The `app.yaml` file is configured to:
 ├── app.py                 # Main application entry point
 ├── app.yaml              # Databricks app configuration
 ├── DatabricksChatbot.py  # Chatbot component implementation
-├── model_serving_utils.py # Model serving utilities
+├── model_serving_utils.py # Model serving utilities & CLI interface
+├── demo_cli.py           # Demo CLI script
 ├── pyproject.toml        # Project dependencies and metadata
 ├── requirements.txt      # Legacy requirements (for reference)
 ├── uv.lock              # uv lock file
+├── vibe-prompts.md       # Vibe coding prompts and documentation
+├── TROUBLESHOOTING.md    # Troubleshooting guide
 └── README.md            # This file
 ```
 
@@ -97,6 +136,7 @@ All dependencies are managed through `pyproject.toml`:
 - `mlflow>=2.21.2` - MLflow for model serving
 - `python-dotenv==1.1.0` - Environment variable loading
 - `databricks-sdk` - Databricks SDK
+- `rich` - Rich text and beautiful formatting for CLI
 
 ## Development Commands
 
@@ -120,6 +160,46 @@ uv sync --upgrade
 SERVING_ENDPOINT=your-endpoint uv run python app.py
 ```
 
+## CLI Utilities
+
+The `model_serving_utils.py` module provides a comprehensive CLI for testing and managing Databricks serving endpoints:
+
+### Available Commands
+
+```bash
+# List all available serving endpoints
+uv run python model_serving_utils.py list
+
+# Display detailed information about an endpoint
+uv run python model_serving_utils.py info my-endpoint
+
+# Test an endpoint with a custom message
+uv run python model_serving_utils.py test my-endpoint --message "Hello, how are you?"
+
+# Start an interactive chat session
+uv run python model_serving_utils.py chat my-endpoint
+
+# Test with custom max tokens
+uv run python model_serving_utils.py test my-endpoint --max-tokens 200
+```
+
+### CLI Features
+
+- **Rich UI**: Beautiful terminal interface with colors, tables, and progress indicators
+- **Endpoint Validation**: Automatically checks if endpoints are supported
+- **Multi-format Support**: Handles different response formats from various endpoint types
+- **Interactive Chat**: Full conversation mode with chat history
+- **Error Handling**: Comprehensive error messages and troubleshooting hints
+
+### Demo CLI
+
+For quick testing, use the demo CLI script:
+
+```bash
+# Run the demo CLI
+uv run python demo_cli.py
+```
+
 ## Troubleshooting
 
 ### Common Issues
@@ -129,8 +209,9 @@ SERVING_ENDPOINT=your-endpoint uv run python app.py
    - Check that your endpoint exists and is accessible
 
 2. **"Endpoint Type Not Supported" error**
-   - Verify your endpoint supports chat completions
+   - Verify your endpoint supports chat completions or is a multi-agent supervisor
    - Check the endpoint task type in Databricks UI
+   - Use `uv run python model_serving_utils.py info your-endpoint` to check compatibility
 
 3. **Authentication issues**
    - Ensure you're logged into Databricks CLI: `databricks auth login`
@@ -146,8 +227,9 @@ The app automatically detects the environment:
 
 1. Make your changes
 2. Test locally: `uv run python app.py`
-3. Test deployment: `uv run databricks app bundle && uv run databricks app deploy`
-4. Commit your changes
+3. Test CLI utilities: `uv run python model_serving_utils.py list`
+4. Test deployment: `uv run databricks apps deploy your-app-name --mode SNAPSHOT`
+5. Commit your changes
 
 ## License
 

@@ -55,6 +55,77 @@ for i, (key, url) in enumerate(dashboard_urls.items(), 1):
 # Initialize the Dash app with a clean theme
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
 
+# Add custom CSS for the main app
+app.index_string = app.index_string.replace(
+    '</head>',
+    '''
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .nav-tabs {
+            border-bottom: none !important;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px 15px 0 0;
+            padding: 10px 20px 0;
+            margin-bottom: 0;
+        }
+        
+        .nav-tabs .nav-link {
+            border: none !important;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            padding: 12px 24px;
+            border-radius: 10px 10px 0 0;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            background: transparent;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .tab-pane {
+            background: transparent;
+        }
+        
+        h1 {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .nav-tabs {
+                padding: 8px 15px 0;
+            }
+            
+            .nav-tabs .nav-link {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+    </head>
+    '''
+)
+
 def create_dashboard_iframe(dashboard_url, dashboard_id):
     """Create an iframe component for dashboard embedding"""
     return html.Div([
@@ -140,23 +211,23 @@ if not endpoint_supported:
         ])
     ], fluid=True)
 else:
-    # Create the chatbot component
-    chatbot = DatabricksChatbot(app=app, endpoint_name=serving_endpoint, height='600px')
+    # Create the enhanced chatbot component
+    chatbot = DatabricksChatbot(app=app, endpoint_name=serving_endpoint, height='calc(100vh - 200px)')
     
     # Create tab content based on available dashboards
     tab_content = []
     
-    # Add chatbot tab
+    # Add enhanced chatbot tab
     tab_content.append(
         dbc.Tab(
-            label="AI Chat",
+            label="AI Assistant",
             tab_id="chat-tab",
             children=[
                 dbc.Container([
                     dbc.Row([
-                        dbc.Col(chatbot.layout, width={'size': 8, 'offset': 2})
+                        dbc.Col(chatbot.layout, width=12)
                     ])
-                ], fluid=True)
+                ], fluid=True, style={'padding': '0', 'height': '100vh'})
             ]
         )
     )
@@ -204,21 +275,24 @@ else:
             )
         )
     
-    # Create the main layout with tabs
+    # Create the main layout with enhanced tabs
     app.layout = dbc.Container([
         dbc.Row([
             dbc.Col([
-                html.H1('Databricks AI & Analytics Hub', className='text-center mb-4'),
-                dbc.Tabs(
-                    id="main-tabs",
-                    active_tab="chat-tab",
-                    children=tab_content,
-                    className="mb-4"
-                ),
-                html.Div(id="tab-content")
+                html.Div([
+                    html.H1('Databricks AI & Analytics Hub', className='text-center mb-4', style={'color': '#1a1a1a', 'fontWeight': '700'}),
+                    dbc.Tabs(
+                        id="main-tabs",
+                        active_tab="chat-tab",
+                        children=tab_content,
+                        className="mb-0",
+                        style={'borderBottom': 'none'}
+                    ),
+                    html.Div(id="tab-content")
+                ], style={'minHeight': '100vh', 'background': 'transparent'})
             ], width=12)
         ])
-    ], fluid=True, style={'padding': '20px'})
+    ], fluid=True, style={'padding': '0', 'background': 'transparent'})
 
 # Callback for handling tab content updates
 @callback(
