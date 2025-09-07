@@ -16,62 +16,60 @@ class DatabricksChatbot:
 
     def _create_layout(self):
         return html.Div([
-            # Header with title and status
+            # Main chat interface
             html.Div([
-                html.H2('AI Assistant', className='chat-title mb-2'),
+                # Header
                 html.Div([
-                    html.Span('●', className='status-indicator', id='status-indicator'),
-                    html.Span('Connected', className='status-text', id='status-text')
-                ], className='status-container mb-3')
-            ], className='chat-header'),
-            
-            # Chat container
-            dbc.Card([
-                dbc.CardBody([
-                    html.Div(id='chat-history', className='chat-history'),
-                ], className='d-flex flex-column chat-body')
-            ], className='chat-card mb-3'),
-            
-            # Input area
-            html.Div([
-                dbc.InputGroup([
-                    dbc.Input(
-                        id='user-input', 
-                        placeholder='Ask me anything...', 
-                        type='text',
-                        className='chat-input',
-                        autoComplete='off'
-                    ),
-                    dbc.Button(
-                        'Send', 
-                        id='send-button', 
-                        color='primary', 
-                        n_clicks=0, 
-                        className='send-button',
-                        disabled=False
-                    ),
-                ], className='input-group mb-2'),
+                    html.Div([
+                        html.H3('AI Assistant', className='chat-header-title'),
+                        html.Div([
+                            html.Span('●', className='status-indicator', id='status-indicator'),
+                            html.Span('Connected', className='status-text', id='status-text')
+                        ], className='status-container')
+                    ], className='chat-header-content')
+                ], className='chat-header'),
                 
-                # Action buttons
+                # Chat messages area
                 html.Div([
-                    dbc.Button(
-                        'Clear Chat', 
-                        id='clear-button', 
-                        color='outline-secondary', 
-                        size='sm',
-                        n_clicks=0, 
-                        className='action-button'
-                    ),
-                    dbc.Button(
-                        'Export Chat', 
-                        id='export-button', 
-                        color='outline-info', 
-                        size='sm',
-                        n_clicks=0, 
-                        className='action-button'
-                    ),
-                ], className='action-buttons')
-            ], className='input-container'),
+                    html.Div(id='chat-history', className='chat-history'),
+                ], className='chat-messages-container'),
+                
+                # Input area
+                html.Div([
+                    html.Div([
+                        dbc.Input(
+                            id='user-input', 
+                            placeholder='Type a message here...', 
+                            type='text',
+                            className='chat-input',
+                            autoComplete='off'
+                        ),
+                        dbc.Button(
+                            html.I(className='fas fa-paper-plane'),
+                            id='send-button', 
+                            n_clicks=0, 
+                            className='send-button',
+                            disabled=False
+                        ),
+                    ], className='input-container-inner'),
+                    
+                    # Action buttons (hidden by default, can be toggled)
+                    html.Div([
+                        dbc.Button(
+                            '🗑️ Clear', 
+                            id='clear-button', 
+                            n_clicks=0, 
+                            className='action-button'
+                        ),
+                        dbc.Button(
+                            '📁 Export', 
+                            id='export-button', 
+                            n_clicks=0, 
+                            className='action-button'
+                        ),
+                    ], className='action-buttons', style={'display': 'none'})
+                ], className='input-area'),
+            ], className='main-chat-container'),
             
             # Hidden stores and components
             dcc.Store(id='assistant-trigger'),
@@ -79,6 +77,7 @@ class DatabricksChatbot:
             dcc.Store(id='clear-confirmation-trigger'),
             html.Div(id='dummy-output', style={'display': 'none'}),
             html.Div(id='scroll-trigger', style={'display': 'none'}),
+            html.Div(id='input-visibility-trigger', style={'display': 'none'}),
             
             # Clear confirmation modal
             dbc.Modal([
@@ -376,64 +375,80 @@ class DatabricksChatbot:
     def _add_custom_css(self):
         custom_css = '''
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
         
-        body {
+        * {
+            box-sizing: border-box;
+        }
+        
+        /* Only apply dark theme to chat container and its children */
+        .main-chat-container {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
+            background: #1a1a1e;
+            color: #ffffff;
         }
         
         .chat-container {
-            max-width: 900px;
-            margin: 20px auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            height: calc(100vh - 40px);
+            background: #1a1a1e;
+            height: calc(100vh - 200px);
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: relative;
+            width: 100%;
         }
         
-        .chat-header {
-            padding: 20px 30px 10px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            background: rgba(255, 255, 255, 0.8);
+        .main-chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+            background: #1a1a1e;
+            border-radius: 0;
+            min-height: 0;
+            max-height: calc(100vh - 200px);
         }
         
-        .chat-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin: 0;
-            text-align: center;
+        .main-chat-container .chat-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #2d2d32;
+            background: #1a1a1e;
+            flex-shrink: 0;
         }
         
-        .status-container {
+        .main-chat-container .chat-header-content {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+        }
+        
+        .main-chat-container .chat-header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0;
+        }
+        
+        .main-chat-container .status-container {
+            display: flex;
+            align-items: center;
             gap: 8px;
         }
         
-        .status-indicator {
+        .main-chat-container .status-indicator {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background-color: #10b981;
+            background-color: #22c55e;
             animation: pulse 2s infinite;
         }
         
-        .status-indicator.error {
+        .main-chat-container .status-indicator.error {
             background-color: #ef4444;
         }
         
-        .status-text {
+        .main-chat-container .status-text {
             font-size: 14px;
-            color: #6b7280;
+            color: #9ca3af;
             font-weight: 500;
         }
         
@@ -442,110 +457,106 @@ class DatabricksChatbot:
             50% { opacity: 0.5; }
         }
         
-        .chat-card {
-            border: none;
-            background: transparent;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
+        .main-chat-container .chat-messages-container {
+            flex: 1;
             overflow: hidden;
-            margin: 0;
-        }
-        
-        .chat-body {
-            flex-grow: 1;
-            overflow: hidden;
+            background: #1a1a1e;
+            min-height: 0;
             display: flex;
             flex-direction: column;
         }
         
-        .chat-history {
-            flex-grow: 1;
+        .main-chat-container .chat-history {
+            flex: 1;
             overflow-y: auto;
-            padding: 20px 30px;
+            padding: 24px;
             scroll-behavior: smooth;
+            box-sizing: border-box;
+            min-height: 0;
         }
         
-        .chat-history::-webkit-scrollbar {
+        .main-chat-container .chat-history::-webkit-scrollbar {
             width: 6px;
         }
         
-        .chat-history::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.05);
+        .main-chat-container .chat-history::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .main-chat-container .chat-history::-webkit-scrollbar-thumb {
+            background: #3f3f46;
             border-radius: 3px;
         }
         
-        .chat-history::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 3px;
+        .main-chat-container .chat-history::-webkit-scrollbar-thumb:hover {
+            background: #52525b;
         }
         
-        .message-container {
+        .main-chat-container .message-container {
             display: flex;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             animation: fadeInUp 0.3s ease-out;
         }
         
-        .user-container {
+        .main-chat-container .user-container {
             justify-content: flex-end;
         }
         
-        .assistant-container {
+        .main-chat-container .assistant-container {
             justify-content: flex-start;
         }
         
-        .chat-message {
-            max-width: 75%;
-            padding: 16px 20px;
-            border-radius: 18px;
-            font-size: 15px;
-            line-height: 1.5;
+        .main-chat-container .chat-message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.4;
             word-wrap: break-word;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
         
-        .user-message {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .main-chat-container .user-message {
+            background: #3b82f6;
             color: white;
-            border-bottom-right-radius: 6px;
+            border-bottom-right-radius: 4px;
         }
         
-        .assistant-message {
-            background: white;
-            color: #1a1a1a;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            border-bottom-left-radius: 6px;
+        .main-chat-container .assistant-message {
+            background: #2d2d32;
+            color: #ffffff;
+            border-bottom-left-radius: 4px;
         }
         
-        .typing-message {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.05);
+        .main-chat-container .typing-message {
+            background: #2d2d32;
+            color: #9ca3af;
             display: flex;
             align-items: center;
             gap: 12px;
             min-width: 120px;
         }
         
-        .typing-animation {
+        .main-chat-container .typing-animation {
             display: flex;
             gap: 4px;
         }
         
-        .typing-dot {
+        .main-chat-container .typing-dot {
             width: 6px;
             height: 6px;
-            background-color: #667eea;
+            background-color: #9ca3af;
             border-radius: 50%;
             animation: typing-bounce 1.4s infinite ease-in-out;
         }
         
-        .typing-dot:nth-child(1) { animation-delay: 0s; }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        .main-chat-container .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .main-chat-container .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .main-chat-container .typing-dot:nth-child(3) { animation-delay: 0.4s; }
         
-        .typing-text {
+        .main-chat-container .typing-text {
             font-size: 13px;
-            color: #6b7280;
+            color: #9ca3af;
             font-style: italic;
         }
         
@@ -565,62 +576,87 @@ class DatabricksChatbot:
             }
         }
         
-        .message-content {
+        .main-chat-container .message-content {
             line-height: 1.6;
         }
         
-        .chat-paragraph {
+        .main-chat-container .chat-paragraph {
             margin: 0 0 8px 0;
             font-size: 15px;
         }
         
-        .chat-bullet, .chat-numbered {
+        .main-chat-container .chat-bullet, .main-chat-container .chat-numbered {
             margin: 4px 0;
             padding-left: 8px;
         }
         
-        .chat-table {
+        .main-chat-container .chat-table {
             margin: 12px 0;
             font-size: 14px;
         }
         
-        .input-container {
-            padding: 20px 30px;
-            background: rgba(255, 255, 255, 0.8);
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        .main-chat-container .input-area {
+            padding: 20px 24px;
+            background: #1a1a1e;
+            border-top: 1px solid #2d2d32;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 100;
         }
         
-        .chat-input {
-            border-radius: 25px;
-            border: 2px solid rgba(0, 0, 0, 0.1);
-            padding: 12px 20px;
-            font-size: 15px;
-            transition: all 0.2s ease;
+        .main-chat-container .input-container-inner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #2d2d32;
+            border-radius: 24px;
+            padding: 8px 8px 8px 20px;
         }
         
-        .chat-input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        .main-chat-container .chat-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 14px;
+            padding: 8px 0;
             outline: none;
         }
         
-        .send-button {
-            border-radius: 25px;
-            padding: 12px 24px;
-            font-weight: 600;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .main-chat-container .chat-input::placeholder {
+            color: #9ca3af;
+        }
+        
+        .main-chat-container .chat-input:focus {
+            outline: none;
+        }
+        
+        .main-chat-container .send-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #3b82f6;
             border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
             transition: all 0.2s ease;
         }
         
-        .send-button:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        .main-chat-container .send-button:hover:not(:disabled) {
+            background: #2563eb;
+            transform: scale(1.05);
         }
         
-        .send-button:disabled {
-            opacity: 0.6;
+        .main-chat-container .send-button:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
+        }
+        
+        .main-chat-container .send-button i {
+            font-size: 14px;
         }
         
         .action-buttons {
@@ -631,72 +667,75 @@ class DatabricksChatbot:
         }
         
         .action-button {
-            border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 13px;
+            background: #2d2d32;
+            color: #9ca3af;
+            border: 1px solid #3f3f46;
+            border-radius: 16px;
+            padding: 6px 12px;
+            font-size: 12px;
             font-weight: 500;
             transition: all 0.2s ease;
         }
         
         .action-button:hover {
-            transform: translateY(-1px);
+            background: #3f3f46;
+            color: #ffffff;
         }
         
-        .input-group {
+        .main-chat-container .input-group {
             flex-wrap: nowrap;
         }
         
-        /* Responsive design */
+        /* Responsive design for chat container only */
         @media (max-width: 768px) {
-            .chat-container {
-                margin: 10px;
-                height: calc(100vh - 20px);
-                border-radius: 15px;
+            .main-chat-container .chat-header, .main-chat-container .input-area {
+                padding: 16px 20px;
             }
             
-            .chat-header, .input-container {
-                padding: 15px 20px;
+            .main-chat-container .chat-history {
+                padding: 16px 20px;
             }
             
-            .chat-history {
-                padding: 15px 20px;
+            .main-chat-container .chat-header-title {
+                font-size: 18px;
             }
             
-            .chat-title {
-                font-size: 24px;
-            }
-            
-            .chat-message {
+            .main-chat-container .chat-message {
                 max-width: 85%;
-                padding: 14px 16px;
+                padding: 10px 14px;
                 font-size: 14px;
             }
             
-            .action-buttons {
-                flex-direction: column;
+            .main-chat-container .action-buttons {
+                flex-direction: row;
                 gap: 8px;
             }
         }
         
-        /* Modal styling */
-        .modal-content {
-            border-radius: 15px;
-            border: none;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        /* Modal styling - scoped to chat modals only */
+        .main-chat-container .modal-content {
+            background: #2d2d32;
+            border: 1px solid #3f3f46;
+            border-radius: 12px;
+            color: #ffffff;
         }
         
-        .modal-header {
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 20px 25px 15px;
+        .main-chat-container .modal-header {
+            border-bottom: 1px solid #3f3f46;
+            padding: 20px 24px 16px;
         }
         
-        .modal-body {
-            padding: 20px 25px;
+        .main-chat-container .modal-body {
+            padding: 16px 24px;
         }
         
-        .modal-footer {
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 15px 25px 20px;
+        .main-chat-container .modal-footer {
+            border-top: 1px solid #3f3f46;
+            padding: 16px 24px 20px;
+        }
+        
+        .main-chat-container .modal-title {
+            color: #ffffff;
         }
         '''
         
@@ -719,4 +758,26 @@ class DatabricksChatbot:
             Output('scroll-trigger', 'children'),
             Input('chat-history', 'children'),
             prevent_initial_call=True
+        )
+        
+        # Input visibility callback - ensures input is visible on page load
+        self.app.clientside_callback(
+            """
+            function(_) {
+                setTimeout(function() {
+                    var userInput = document.getElementById('user-input');
+                    var inputArea = document.querySelector('.input-area');
+                    if(userInput && inputArea) {
+                        // Ensure input area is visible
+                        inputArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                        // Focus the input
+                        userInput.focus();
+                    }
+                }, 100);
+                return '';
+            }
+            """,
+            Output('input-visibility-trigger', 'children'),
+            Input('user-input', 'id'),
+            prevent_initial_call=False
         )
