@@ -20,8 +20,8 @@ def main():
     
     # Test help command
     print("\n1. Testing help command:")
-    print("Command: python model_serving_utils.py --help")
-    returncode, stdout, stderr = run_command("python model_serving_utils.py --help")
+    print("Command: python scripts/model_serving_utils.py --help")
+    returncode, stdout, stderr = run_command("python scripts/model_serving_utils.py --help")
     if returncode == 0:
         print("✅ Help command works!")
         print(stdout[:200] + "..." if len(stdout) > 200 else stdout)
@@ -30,8 +30,8 @@ def main():
     
     # Test info command
     print("\n2. Testing info command:")
-    print("Command: python model_serving_utils.py info mas-84eae27f-endpoint")
-    returncode, stdout, stderr = run_command("python model_serving_utils.py info mas-84eae27f-endpoint")
+    print("Command: python scripts/model_serving_utils.py info mas-84eae27f-endpoint")
+    returncode, stdout, stderr = run_command("python scripts/model_serving_utils.py info mas-84eae27f-endpoint")
     if returncode == 0:
         print("✅ Info command works!")
         print("Endpoint information displayed successfully")
@@ -40,8 +40,8 @@ def main():
     
     # Test test command
     print("\n3. Testing test command:")
-    print("Command: python model_serving_utils.py test mas-84eae27f-endpoint --message 'Hello'")
-    returncode, stdout, stderr = run_command("python model_serving_utils.py test mas-84eae27f-endpoint --message 'Hello'")
+    print("Command: python scripts/model_serving_utils.py test mas-84eae27f-endpoint --message 'Hello'")
+    returncode, stdout, stderr = run_command("python scripts/model_serving_utils.py test mas-84eae27f-endpoint --message 'Hello'")
     if returncode == 0:
         print("✅ Test command works!")
         print("Endpoint query test successful")
@@ -50,10 +50,10 @@ def main():
     
     print("\n🎉 CLI Demo completed!")
     print("\nAvailable commands:")
-    print("  • python model_serving_utils.py info <endpoint>     - Show endpoint details")
-    print("  • python model_serving_utils.py test <endpoint>     - Test endpoint with query")
-    print("  • python model_serving_utils.py chat <endpoint>     - Interactive chat mode")
-    print("  • python model_serving_utils.py list                - List all endpoints")
+    print("  • python scripts/model_serving_utils.py info <endpoint>     - Show endpoint details")
+    print("  • python scripts/model_serving_utils.py test <endpoint>     - Test endpoint with query")
+    print("  • python scripts/model_serving_utils.py chat <endpoint>     - Interactive chat mode")
+    print("  • python scripts/model_serving_utils.py list                - List all endpoints")
 
 if __name__ == "__main__":
     main()

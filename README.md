@@ -55,33 +55,40 @@ The app will be available at `http://localhost:8050`
 
 ### 3. Databricks Deployment
 
-Deploy to Databricks as an app:
+First, sync your code to the workspace:
 
 ```bash
-# Deploy to your workspace (automatically bundles and deploys)
-uv run databricks apps deploy
+# Sync code to workspace (with watch for continuous sync)
+databricks sync --watch . /Workspace/Users/your-email@databricks.com/apps/your-app-name/
+```
 
-# Or deploy a specific app by name
-uv run databricks apps deploy your-app-name
+Then create and deploy your app:
+
+```bash
+# Create the app (first time only)
+databricks apps create your-app-name
+
+# Deploy the app from workspace source
+databricks apps deploy your-app-name --source-code-path /Workspace/Users/your-email@databricks.com/apps/your-app-name
 
 # Deploy with snapshot mode (recommended for updates)
-uv run databricks apps deploy your-app-name --mode SNAPSHOT
+databricks apps deploy your-app-name --source-code-path /Workspace/Users/your-email@databricks.com/apps/your-app-name --mode SNAPSHOT
 ```
 
 ### App Management Commands
 
 ```bash
 # List all deployed apps
-uv run databricks apps list
+databricks apps list
 
 # Get app details and status
-uv run databricks apps get your-app-name
+databricks apps get your-app-name
 
 # Get deployment details
-uv run databricks apps get-deployment your-app-name deployment-id
+databricks apps get-deployment your-app-name deployment-id
 
 # Check app status
-uv run databricks apps get your-app-name
+databricks apps get your-app-name
 ```
 
 ## Configuration
@@ -228,7 +235,7 @@ The app automatically detects the environment:
 1. Make your changes
 2. Test locally: `uv run python app.py`
 3. Test CLI utilities: `uv run python model_serving_utils.py list`
-4. Test deployment: `uv run databricks apps deploy your-app-name --mode SNAPSHOT`
+4. Test deployment: `databricks apps deploy your-app-name --mode SNAPSHOT`
 5. Commit your changes
 
 ## License

@@ -3,7 +3,7 @@ from dash import html, Input, Output, State, dcc, callback_context
 import dash_bootstrap_components as dbc
 import re
 import json
-from model_serving_utils import query_endpoint, is_endpoint_supported
+from ..databricks.sdk_wrapper import query_endpoint, is_endpoint_supported
 
 class DatabricksChatbot:
     def __init__(self, app, endpoint_name, height='600px'):

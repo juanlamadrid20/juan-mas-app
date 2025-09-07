@@ -2,8 +2,8 @@ import os
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc, Input, Output, State, callback
-from DatabricksChatbot import DatabricksChatbot
-from model_serving_utils import is_endpoint_supported
+from src.ui import DatabricksChatbot
+from src.databricks import is_endpoint_supported
 from dotenv import load_dotenv
 
 # Load environment variables from .env file for local development
