@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 """
-Demo script showing the Rich CLI functionality for model_serving_utils.py
+Demo script showing the Rich CLI functionality for src.cli module
+
+This script tests the various CLI commands available in the model serving utilities.
+Make sure you're authenticated with Databricks CLI before running:
+    databricks auth login
+
+Usage:
+    uv run python scripts/demo_cli.py
+
+The CLI module is properly organized in src/cli/ and can be run with:
+    uv run python -m src.cli <command>
 """
 
 import subprocess
@@ -20,40 +30,58 @@ def main():
     
     # Test help command
     print("\n1. Testing help command:")
-    print("Command: python scripts/model_serving_utils.py --help")
-    returncode, stdout, stderr = run_command("python scripts/model_serving_utils.py --help")
+    print("Command: uv run python -m src.cli --help")
+    returncode, stdout, stderr = run_command("uv run python -m src.cli --help")
     if returncode == 0:
         print("✅ Help command works!")
         print(stdout[:200] + "..." if len(stdout) > 200 else stdout)
     else:
         print(f"❌ Help command failed: {stderr}")
     
+    # Test list command
+    print("\n2. Testing list command:")
+    print("Command: uv run python -m src.cli list")
+    returncode, stdout, stderr = run_command("uv run python -m src.cli list")
+    if returncode == 0:
+        print("✅ List command works!")
+        print("Available endpoints displayed successfully")
+    else:
+        print(f"❌ List command failed: {stderr}")
+        print("Note: This may fail if you're not authenticated with Databricks CLI")
+    
     # Test info command
-    print("\n2. Testing info command:")
-    print("Command: python scripts/model_serving_utils.py info mas-84eae27f-endpoint")
-    returncode, stdout, stderr = run_command("python scripts/model_serving_utils.py info mas-84eae27f-endpoint")
+    print("\n3. Testing info command:")
+    print("Command: uv run python -m src.cli info mas-84eae27f-endpoint")
+    returncode, stdout, stderr = run_command("uv run python -m src.cli info mas-84eae27f-endpoint")
     if returncode == 0:
         print("✅ Info command works!")
         print("Endpoint information displayed successfully")
     else:
         print(f"❌ Info command failed: {stderr}")
+        print("Note: Replace 'mas-84eae27f-endpoint' with your actual endpoint name")
     
     # Test test command
-    print("\n3. Testing test command:")
-    print("Command: python scripts/model_serving_utils.py test mas-84eae27f-endpoint --message 'Hello'")
-    returncode, stdout, stderr = run_command("python scripts/model_serving_utils.py test mas-84eae27f-endpoint --message 'Hello'")
+    print("\n4. Testing test command:")
+    print("Command: uv run python -m src.cli test mas-84eae27f-endpoint --message 'Hello, this is a test message'")
+    returncode, stdout, stderr = run_command("uv run python -m src.cli test mas-84eae27f-endpoint --message 'Hello, this is a test message'")
     if returncode == 0:
         print("✅ Test command works!")
         print("Endpoint query test successful")
     else:
         print(f"❌ Test command failed: {stderr}")
+        print("Note: This requires a valid endpoint name and proper authentication")
     
     print("\n🎉 CLI Demo completed!")
-    print("\nAvailable commands:")
-    print("  • python scripts/model_serving_utils.py info <endpoint>     - Show endpoint details")
-    print("  • python scripts/model_serving_utils.py test <endpoint>     - Test endpoint with query")
-    print("  • python scripts/model_serving_utils.py chat <endpoint>     - Interactive chat mode")
-    print("  • python scripts/model_serving_utils.py list                - List all endpoints")
+    print("\n📋 Available CLI Commands:")
+    print("  • uv run python -m src.cli list                    - List all endpoints")
+    print("  • uv run python -m src.cli info <endpoint>         - Show endpoint details")
+    print("  • uv run python -m src.cli test <endpoint>         - Test endpoint with query")
+    print("  • uv run python -m src.cli chat <endpoint>         - Interactive chat mode")
+    print("\n💡 Tips:")
+    print("  • Use --help with any command for detailed usage information")
+    print("  • Make sure you're authenticated: databricks auth login")
+    print("  • Replace <endpoint> with your actual serving endpoint name")
+    print("  • Use your endpoint from app.yaml or .env file for testing")
 
 if __name__ == "__main__":
     main()
